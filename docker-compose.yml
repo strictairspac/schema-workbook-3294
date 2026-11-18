@@ -33,6 +33,9 @@ services:
       REDIS_URL: redis://redis:6379/0
       JWT_SECRET: ${JWT_SECRET:-local-schema-workbook-change-before-public-use}
       SEED_DEMO: ${SEED_DEMO:-true}
+      STORAGE_LIMIT_BYTES: ${STORAGE_LIMIT_BYTES:-2097152}
+      PUBLISH_SLOTS: ${PUBLISH_SLOTS:-3}
+      STORAGE_LOCK_DIR: /tmp/schemaworkbook-locks
     ports: ["${BACKEND_PORT:-19243}:8000"]
     volumes: [run-artifacts:/artifacts]
     depends_on:

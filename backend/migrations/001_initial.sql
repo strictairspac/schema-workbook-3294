@@ -1,3 +1,19 @@
 -- Initial schema is applied idempotently by SQLAlchemy metadata.create_all.
 -- Authoritative models: src/models/entities.py (relations, dependencies, reports,
 -- audit_logs and users). Dependencies/report snapshots are persisted as MySQL JSON.
+--
+-- 报告正文在线存储配额改造新增列。全新数据库由 metadata.create_all 自动建出；
+-- 对已存在的旧库，请对 reports 表幂等执行下列语句（MySQL 8.0，重复执行会因列已存在而跳过）。
+-- 可使用 information_schema 判断后再 ALTER，或由运维一次性执行：
+--
+-- ALTER TABLE reports
+--   ADD COLUMN storage_state   VARCHAR(20)  NOT NULL DEFAULT 'pending',
+--   ADD COLUMN body_size       INTEGER      NOT NULL DEFAULT 0,
+--   ADD COLUMN publish_attempt INTEGER      NOT NULL DEFAULT 0,
+--   ADD COLUMN slot_token      INTEGER      NOT NULL DEFAULT 0,
+--   ADD COLUMN storage_note    VARCHAR(500) NOT NULL DEFAULT '',
+--   ADD COLUMN artifact_path   VARCHAR(300) NULL,
+--   ADD COLUMN published_at    DATETIME     NULL,
+--   ADD COLUMN evicted_at      DATETIME     NULL;
+--
+-- 存量报告默认 storage_state='pending'；上线后由 worker 转为 'online'。
